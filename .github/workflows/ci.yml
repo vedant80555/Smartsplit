@@ -28,5 +28,4 @@ jobs:
         run: |
           python -c "from app import app; print('SmartSplit app loaded successfully')"
 
-          - name: Temporary failure test
-        run: exit 1
+        
