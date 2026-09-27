@@ -27,3 +27,6 @@ jobs:
       - name: Check Flask app
         run: |
           python -c "from app import app; print('SmartSplit app loaded successfully')"
+
+          - name: Temporary failure test
+        run: exit 1
