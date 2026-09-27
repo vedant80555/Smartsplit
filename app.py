@@ -74,7 +74,42 @@ def add_person():
 
     return redirect(url_for("home"))
 
+# Add Expense
+# -------------------------
+@app.route("/add_expense", methods=["POST"])
+def add_expense():
 
+    description = request.form.get("description", "").strip()
+    amount = request.form.get("amount", type=float)
+    paid_by = request.form.get("paid_by", "").strip()
+    participants = request.form.getlist("participants")
+
+    if description and amount and amount > 0 and paid_by and participants:
+
+        expense = Expense(
+            description=description,
+            amount=amount,
+            paid_by=paid_by
+        )
+
+        db.session.add(expense)
+        db.session.commit()
+
+        share = amount / len(participants)
+
+        for person_name in participants:
+
+            participant = ExpenseParticipant(
+                expense_id=expense.id,
+                person_name=person_name,
+                share=share
+            )
+
+            db.session.add(participant)
+
+        db.session.commit()
+
+    return redirect(url_for("home"))
 # -------------------------
 # Create Database Tables
 # -------------------------
