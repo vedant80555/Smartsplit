@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -98,6 +98,11 @@
             font-size: 15px;
         }
 
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+
         button {
             background: #2563eb;
             color: white;
@@ -110,6 +115,14 @@
 
         button:hover {
             background: #1d4ed8;
+        }
+
+        .reset-button {
+            background: #dc2626;
+        }
+
+        .reset-button:hover {
+            background: #b91c1c;
         }
 
         .people-list {
@@ -125,6 +138,41 @@
             border-radius: 20px;
             color: #2563eb;
             font-weight: bold;
+        }
+
+        .payer-row {
+            display: grid;
+            grid-template-columns: 1fr 180px;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .payer-name {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 7px;
+        }
+
+        .payer-amount {
+            width: 100%;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .error-box {
+            background: #fef2f2;
+            color: #b91c1c;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+            display: none;
         }
 
         table {
@@ -148,6 +196,24 @@
             padding: 15px 0;
         }
 
+        .positive {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .negative {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .settlement {
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+
         footer {
             text-align: center;
             padding: 25px;
@@ -155,12 +221,26 @@
         }
 
         @media (max-width: 768px) {
+
             .dashboard {
                 grid-template-columns: 1fr;
             }
 
             .container {
                 width: 95%;
+            }
+
+            .payer-row {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th,
+            td {
+                padding: 8px;
             }
         }
     </style>
@@ -175,195 +255,339 @@
 
     <div class="container">
 
-        <!-- Dashboard Summary -->
+        <!-- Dashboard -->
         <div class="dashboard">
 
             <div class="card">
                 <h3>Total People</h3>
-            <div class="number">{{ people|length }}</div>
+                <div class="number">
+                    {{ people|length }}
+                </div>
             </div>
-             <div class="card">
+
+            <div class="card">
                 <h3>Total Expenses</h3>
-       <div class="number">₹{{ "%.2f"|format(total_expenses) }}</div>
+                <div class="number">
+                    ₹{{ "%.2f"|format(total_expenses) }}
+                </div>
             </div>
 
             <div class="card">
                 <h3>Expenses Count</h3>
-             <div class="number">{{ expenses|length }}</div>
-            </div>
-
-        </div>
-
-
-       <!-- Add Person -->
-<div class="section">
-
-    <h2>👥 Add People</h2>
-
-    <form action="/add_person" method="POST">
-
-        <div class="form-group">
-
-            <label for="personName">
-                Person Name
-            </label>
-
-            <input
-                type="text"
-                id="personName"
-                name="name"
-                placeholder="Enter person's name"
-                required
-            >
-
-        </div>
-
-        <button type="submit">
-            Add Person
-        </button>
-
-    </form>
-
-
-    <div class="people-list">
-
-        {% if people %}
-
-            {% for person in people %}
-
-                <div class="person">
-                    👤 {{ person.name }}
+                <div class="number">
+                    {{ expenses|length }}
                 </div>
-
-            {% endfor %}
-
-        {% else %}
-
-            <div class="person">
-                No people added yet
             </div>
 
-        {% endif %}
+        </div>
 
-    </div>
 
-</div>
+        <!-- Reset Data -->
+        <div class="section">
 
-       <!-- Add Expense -->
-<div class="section">
+            <h2>🗑️ Reset Data</h2>
 
-    <h2>💰 Add Expense</h2>
+            <form action="/reset_data" method="POST"
+                  onsubmit="return confirm('Are you sure you want to delete all data?');">
 
-    <form action="/add_expense" method="POST">
+                <button type="submit" class="reset-button">
+                    Reset All Data
+                </button>
 
-        <div class="form-group">
-
-            <label for="description">
-                Expense Description
-            </label>
-
-            <input
-                type="text"
-                id="description"
-                name="description"
-                placeholder="Example: Dinner"
-                required
-            >
+            </form>
 
         </div>
 
 
-        <div class="form-group">
+        <!-- Add People -->
+        <div class="section">
 
-            <label for="amount">
-                Amount (₹)
-            </label>
+            <h2>👥 Add People</h2>
 
-            <input
-                type="number"
-                id="amount"
-                name="amount"
-                placeholder="Example: 1200"
-                min="0.01"
-                step="0.01"
-                required
-            >
+            <form action="/add_person" method="POST">
 
-        </div>
+                <div class="form-group">
 
-
-        <div class="form-group">
-
-            <label for="paidBy">
-                Paid By
-            </label>
-
-            <select id="paidBy" name="paid_by" required>
-
-                <option value="">
-                    Select person
-                </option>
-
-                {% for person in people %}
-
-                    <option value="{{ person.name }}">
-                        {{ person.name }}
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
-        </div>
-
-
-        <div class="form-group">
-
-            <label>
-                Split Between
-            </label>
-
-            {% for person in people %}
-
-                <div style="margin-bottom: 8px;">
-
-                    <label style="font-weight: normal;">
-
-                        <input
-                            type="checkbox"
-                            name="participants"
-                            value="{{ person.name }}"
-                            style="width: auto; margin-right: 8px;"
-                        >
-
-                        {{ person.name }}
-
+                    <label for="personName">
+                        Person Name
                     </label>
 
+                    <input
+                        type="text"
+                        id="personName"
+                        name="name"
+                        placeholder="Enter person's name"
+                        required
+                    >
+
                 </div>
 
-            {% endfor %}
+                <button type="submit">
+                    Add Person
+                </button>
+
+            </form>
+
+
+            <div class="people-list">
+
+                {% if people %}
+
+                    {% for person in people %}
+
+                        <div class="person">
+                            👤 {{ person.name }}
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <div class="person">
+                        No people added yet
+                    </div>
+
+                {% endif %}
+
+            </div>
 
         </div>
 
 
-        <button type="submit">
-            Add Expense
-        </button>
+        <!-- Add Expense -->
+        <div class="section">
 
-    </form>
+            <h2>💰 Add Expense</h2>
 
-</div>
+            <div class="info-box">
+                Select one or more people who paid and enter the amount paid by each person.
+                The total payment must equal the expense amount.
+            </div>
 
 
-        <!-- Expenses -->
+            <form action="/add_expense" method="POST">
+
+                <!-- Description -->
+                <div class="form-group">
+
+                    <label for="description">
+                        Expense Description
+                    </label>
+
+                    <input
+                        type="text"
+                        id="description"
+                        name="description"
+                        placeholder="Example: Dinner"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Total Amount -->
+                <div class="form-group">
+
+                    <label for="amount">
+                        Total Amount (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        placeholder="Example: 1200"
+                        min="0.01"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Multiple Payers -->
+                <div class="form-group">
+
+                    <label>
+                        💳 Who Paid?
+                    </label>
+
+                    {% if people %}
+
+                        {% for person in people %}
+
+                            <div class="payer-row">
+
+                                <label style="font-weight: normal;">
+
+                                    <input
+                                        type="checkbox"
+                                        class="payer-checkbox"
+                                        name="payer_names"
+                                        value="{{ person.name }}"
+                                        data-person="{{ person.name }}"
+                                    >
+
+                                    {{ person.name }}
+
+                                </label>
+
+                                <input
+                                    type="number"
+                                    class="payer-amount"
+                                    name="payer_amounts"
+                                    data-person="{{ person.name }}"
+                                    placeholder="₹ Amount"
+                                    min="0"
+                                    step="0.01"
+                                    disabled
+                                >
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="empty">
+                            Add people first.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Payment Status -->
+                <div id="paymentStatus" class="info-box">
+                    Total paid: ₹0.00
+                </div>
+
+                <div id="paymentError" class="error-box">
+                    Total paid must be equal to the total expense amount.
+                </div>
+
+
+                <!-- Split Between -->
+                <div class="form-group">
+
+                    <label>
+                        👥 Split Between
+                    </label>
+
+                    {% if people %}
+
+                        {% for person in people %}
+
+                            <div style="margin-bottom: 8px;">
+
+                                <label style="font-weight: normal;">
+
+                                    <input
+                                        type="checkbox"
+                                        name="participants"
+                                        value="{{ person.name }}"
+                                    >
+
+                                    {{ person.name }}
+
+                                </label>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="empty">
+                            Add people first.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+
+                <button type="submit" id="addExpenseButton">
+                    Add Expense
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- Expense History -->
         <div class="section">
 
             <h2>📋 Expense History</h2>
 
-            <p class="empty">
-                No expenses added yet.
-            </p>
+            {% if expenses %}
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Paid By</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for expense in expenses %}
+
+                            <tr>
+
+                                <td>
+                                    {{ expense.description }}
+                                </td>
+
+                                <td>
+                                    ₹{{ "%.2f"|format(expense.amount) }}
+                                </td>
+
+                                <td>
+
+                                    {% if expense.payments %}
+
+                                        {% for payment in expense.payments %}
+
+                                            {{ payment.person_name }}
+                                            ₹{{ "%.2f"|format(payment.amount) }}
+
+                                            {% if not loop.last %}
+                                                <br>
+                                            {% endif %}
+
+                                        {% endfor %}
+
+                                    {% else %}
+
+                                        No payment information
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <p class="empty">
+                    No expenses added yet.
+                </p>
+
+            {% endif %}
 
         </div>
 
@@ -373,30 +597,76 @@
 
             <h2>⚖️ Balances</h2>
 
-            <table>
+            {% if balances %}
 
-                <thead>
+                <table>
 
-                    <tr>
-                        <th>Person</th>
-                        <th>Paid</th>
-                        <th>Share</th>
-                        <th>Balance</th>
-                    </tr>
+                    <thead>
 
-                </thead>
+                        <tr>
+                            <th>Person</th>
+                            <th>Paid</th>
+                            <th>Share</th>
+                            <th>Balance</th>
+                        </tr>
 
-                <tbody>
+                    </thead>
 
-                    <tr>
-                        <td colspan="4">
-                            No balance information yet.
-                        </td>
-                    </tr>
+                    <tbody>
 
-                </tbody>
+                        {% for person_name, data in balances.items() %}
 
-            </table>
+                            <tr>
+
+                                <td>
+                                    {{ person_name }}
+                                </td>
+
+                                <td>
+                                    ₹{{ "%.2f"|format(data.paid) }}
+                                </td>
+
+                                <td>
+                                    ₹{{ "%.2f"|format(data.share) }}
+                                </td>
+
+                                <td>
+
+                                    {% if data.balance > 0.01 %}
+
+                                        <span class="positive">
+                                            +₹{{ "%.2f"|format(data.balance) }}
+                                        </span>
+
+                                    {% elif data.balance < -0.01 %}
+
+                                        <span class="negative">
+                                            -₹{{ "%.2f"|format(data.balance|abs) }}
+                                        </span>
+
+                                    {% else %}
+
+                                        ₹0.00
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            {% else %}
+
+                <p class="empty">
+                    No balance information yet.
+                </p>
+
+            {% endif %}
 
         </div>
 
@@ -406,9 +676,35 @@
 
             <h2>🤝 Who Owes Whom?</h2>
 
-            <p class="empty">
-                Add expenses to calculate settlements.
-            </p>
+            {% if settlements %}
+
+                {% for settlement in settlements %}
+
+                    <div class="settlement">
+
+                        <strong>
+                            {{ settlement.from }}
+                        </strong>
+
+                        owes
+
+                        <strong>
+                            {{ settlement.to }}
+                        </strong>
+
+                        ₹{{ "%.2f"|format(settlement.amount) }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="empty">
+                    No settlements required.
+                </p>
+
+            {% endif %}
 
         </div>
 
@@ -416,8 +712,163 @@
 
 
     <footer>
-        <p>SmartSplit © 2026 | Smart Expense Management System</p>
+        <p>
+            SmartSplit © 2026 | Smart Expense Management System
+        </p>
     </footer>
+
+
+    <script>
+
+        const payerCheckboxes =
+            document.querySelectorAll(".payer-checkbox");
+
+        const payerAmounts =
+            document.querySelectorAll(".payer-amount");
+
+        const totalAmount =
+            document.getElementById("amount");
+
+        const paymentStatus =
+            document.getElementById("paymentStatus");
+
+        const paymentError =
+            document.getElementById("paymentError");
+
+        const expenseForm =
+            document.querySelector('form[action="/add_expense"]');
+
+
+        function updatePaymentStatus() {
+
+            let totalPaid = 0;
+
+            payerCheckboxes.forEach(function(checkbox) {
+
+                const person =
+                    checkbox.getAttribute("data-person");
+
+                const amountInput =
+                    document.querySelector(
+                        '.payer-amount[data-person="' + person + '"]'
+                    );
+
+                if (checkbox.checked) {
+
+                    amountInput.disabled = false;
+
+                    totalPaid +=
+                        parseFloat(amountInput.value) || 0;
+
+                } else {
+
+                    amountInput.disabled = true;
+                    amountInput.value = "";
+                }
+
+            });
+
+
+            const expenseAmount =
+                parseFloat(totalAmount.value) || 0;
+
+
+            paymentStatus.textContent =
+                "Total paid: ₹" + totalPaid.toFixed(2);
+
+
+            if (
+                expenseAmount > 0 &&
+                Math.abs(totalPaid - expenseAmount) > 0.01
+            ) {
+
+                paymentStatus.style.color = "#b91c1c";
+                paymentError.style.display = "block";
+
+            } else {
+
+                paymentStatus.style.color = "#15803d";
+                paymentError.style.display = "none";
+
+            }
+
+        }
+
+
+        payerCheckboxes.forEach(function(checkbox) {
+
+            checkbox.addEventListener(
+                "change",
+                updatePaymentStatus
+            );
+
+        });
+
+
+        payerAmounts.forEach(function(input) {
+
+            input.addEventListener(
+                "input",
+                updatePaymentStatus
+            );
+
+        });
+
+
+        totalAmount.addEventListener(
+            "input",
+            updatePaymentStatus
+        );
+
+
+        expenseForm.addEventListener(
+            "submit",
+            function(event) {
+
+                let totalPaid = 0;
+
+                payerCheckboxes.forEach(function(checkbox) {
+
+                    if (checkbox.checked) {
+
+                        const person =
+                            checkbox.getAttribute("data-person");
+
+                        const amountInput =
+                            document.querySelector(
+                                '.payer-amount[data-person="' + person + '"]'
+                            );
+
+                        totalPaid +=
+                            parseFloat(amountInput.value) || 0;
+
+                    }
+
+                });
+
+
+                const expenseAmount =
+                    parseFloat(totalAmount.value) || 0;
+
+
+                if (!expenseAmount ||
+    totalPaid <= 0 ||
+    Math.abs(totalPaid - expenseAmount) > 0.01
+) {
+
+    event.preventDefault();
+
+    paymentError.style.display = "block";
+
+    alert(
+        "Please make sure total paid equals the total expense amount."
+    );
+
+}
+
+}
+);
+</script>
 
 </body>
 </html>
